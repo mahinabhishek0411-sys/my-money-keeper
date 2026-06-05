@@ -1,6 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Download, Plus, Search, Wallet, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
+import {
+  Download,
+  LogOut,
+  Plus,
+  Search,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  PiggyBank,
+} from "lucide-react";
 import { Toaster, toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -31,25 +40,24 @@ import {
   useTransactions,
   type Transaction,
 } from "@/lib/expense-store";
+import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "@/components/expense/StatCard";
 import { TransactionForm } from "@/components/expense/TransactionForm";
 import { TransactionTable } from "@/components/expense/TransactionTable";
 import { MonthlyChart } from "@/components/expense/MonthlyChart";
+import { CategoryPieChart } from "@/components/expense/CategoryPieChart";
+import { SavingsGoals } from "@/components/expense/SavingsGoals";
+import { BudgetPlanner } from "@/components/expense/BudgetPlanner";
 import { ThemeToggle } from "@/components/expense/ThemeToggle";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Pennywise — Personal Expense Tracker" },
       {
         name: "description",
         content:
-          "Track income and expenses, visualize monthly spending, and export your transactions. Beautiful, fast, and private — your data stays on your device.",
-      },
-      { property: "og:title", content: "Pennywise — Personal Expense Tracker" },
-      {
-        property: "og:description",
-        content: "A modern personal finance tracker with charts, filters, and CSV export.",
+          "Track income, expenses, savings goals, and monthly budgets in one beautiful dashboard.",
       },
     ],
   }),
@@ -62,6 +70,7 @@ export const Route = createFileRoute("/")({
 });
 
 function ExpenseApp() {
+  const navigate = useNavigate();
   const { transactions, add, update, remove } = useTransactions();
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
@@ -113,9 +122,13 @@ function ExpenseApp() {
     toast.success("Exported as CSV");
   };
 
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2.5">
@@ -140,12 +153,14 @@ function ExpenseApp() {
               <Plus className="mr-1.5 h-4 w-4" /> Add
             </Button>
             <ThemeToggle />
+            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-        {/* Stats */}
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label="Total income"
@@ -170,12 +185,16 @@ function ExpenseApp() {
           />
         </section>
 
-        {/* Chart */}
-        <section>
+        <section className="grid gap-6 lg:grid-cols-2">
           <MonthlyChart transactions={transactions} />
+          <CategoryPieChart transactions={transactions} />
         </section>
 
-        {/* Transactions */}
+        <section className="grid gap-6 lg:grid-cols-2">
+          <BudgetPlanner transactions={transactions} />
+          <SavingsGoals />
+        </section>
+
         <section className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -235,7 +254,7 @@ function ExpenseApp() {
         </section>
 
         <footer className="pt-2 pb-4 text-center text-xs text-muted-foreground">
-          Data saved locally in your browser · Built with care
+          Synced securely to your account
         </footer>
       </main>
 
@@ -253,9 +272,7 @@ function ExpenseApp() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this transaction?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
