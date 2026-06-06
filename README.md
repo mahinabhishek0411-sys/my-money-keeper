@@ -1,51 +1,82 @@
-=========================================
-        PERSONAL EXPENSE TRACKER
-=========================================
+# Pennywise – Personal Expense Tracker
 
-Project Description:
-The Personal Expense Tracker is a software application designed to help users record, monitor, and manage their daily expenses. It allows users to track income and expenditures, categorize transactions, and analyze spending habits. The system helps individuals maintain financial discipline and make informed budgeting decisions.
+## Overview
 
-Problem Statement:
-Many people find it difficult to keep track of their daily expenses and savings. Manual expense recording can be time-consuming and often leads to inaccurate financial records. A Personal Expense Tracker provides a digital solution to manage expenses efficiently and maintain better control over personal finances.
+Pennywise is a modern web application designed to help users manage their personal finances by tracking income and expenses efficiently. The application provides real-time financial insights through dashboards, charts, and transaction management features.
 
-Objectives:
-• Record daily income and expenses.
-• Categorize transactions for better organization.
-• Monitor spending patterns.
-• Generate expense reports.
-• Help users plan and manage budgets effectively.
+## Objectives
 
-Features:
-• User Registration and Login
-• Add Income and Expense Records
-• Edit and Delete Transactions
-• Expense Categorization
-• Monthly Expense Tracking
-• Budget Management
-• Expense Reports and Summaries
-• Secure Data Storage
+* To simplify personal expense management.
+* To track income and expenses digitally.
+* To provide financial insights through analytics.
+* To reduce errors associated with manual record keeping.
 
-Technologies Used:
-Frontend : HTML, CSS, JavaScript
-Backend  : PHP / Python
-Database : MySQL
-IDE      : Visual Studio Code
+## Features
 
-Advantages:
-• Helps manage personal finances effectively.
-• Tracks spending habits and trends.
-• Reduces manual calculation errors.
-• Supports budget planning.
-• Provides quick access to financial records.
-• Encourages better saving habits.
+* Add income and expenses
+* Categorize transactions
+* Dashboard showing:
 
-Future Enhancements:
-• Mobile Application Support
-• AI-Based Expense Analysis
-• Bank Account Integration
-• Cloud Data Synchronization
-• Automated Bill Reminders
-• Graphical Analytics Dashboard
+  * Total Income
+  * Total Expenses
+  * Remaining Balance
+* Monthly expense charts and analytics
+* Transaction history
+* Search and filter transactions
+* Edit and delete transactions
+* Dark and light mode support
+* CSV export functionality
+* Local storage persistence
 
-Conclusion:
-The Personal Expense Tracker is a useful application for managing personal finances. It helps users monitor income and expenses, maintain accurate financial records, and make better budgeting decisions. The system improves financial awareness and supports effective money management.
+## Technologies Used
+
+* React
+* TypeScript
+* Tailwind CSS
+* Vite
+* Supabase
+* GitHub
+* Lovable
+
+## Installation
+
+1. Clone the repository:
+   git clone <repository-url>
+
+2. Navigate to the project directory:
+   cd personal-expense-tracker
+
+3. Install dependencies:
+   npm install
+
+4. Start the development server:
+   npm run dev
+
+5. Open the local URL displayed in the terminal.
+
+## Usage
+
+1. Add income details.
+2. Record expenses under appropriate categories.
+3. Monitor the dashboard for financial updates.
+4. Use search and filter options to find transactions.
+5. Edit or delete transactions when required.
+6. Export transaction data as CSV.
+
+## Future Enhancements
+
+* User authentication
+* Budget planning
+* Savings goal tracking
+* Bank account integration
+* AI-based spending recommendations
+* Mobile application support
+
+## Conclusion
+
+Pennywise provides an efficient and user-friendly solution for managing personal finances. It enables users to monitor their spending habits and make informed financial decisions.
+
+## Authors
+
+Developed as a college project by the project team.
+
