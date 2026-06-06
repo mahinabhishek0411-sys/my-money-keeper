@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   Download,
-  LogOut,
   Plus,
   Search,
   Wallet,
@@ -40,7 +39,7 @@ import {
   useTransactions,
   type Transaction,
 } from "@/lib/expense-store";
-import { supabase } from "@/integrations/supabase/client";
+
 import { StatCard } from "@/components/expense/StatCard";
 import { TransactionForm } from "@/components/expense/TransactionForm";
 import { TransactionTable } from "@/components/expense/TransactionTable";
@@ -70,7 +69,6 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function ExpenseApp() {
-  const navigate = useNavigate();
   const { transactions, add, update, remove } = useTransactions();
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
@@ -122,10 +120,6 @@ function ExpenseApp() {
     toast.success("Exported as CSV");
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,9 +147,6 @@ function ExpenseApp() {
               <Plus className="mr-1.5 h-4 w-4" /> Add
             </Button>
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
-              <LogOut className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </header>

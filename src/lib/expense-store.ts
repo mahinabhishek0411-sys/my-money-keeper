@@ -1,6 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export type TxType = "income" | "expense";
 export type Category =
@@ -44,72 +42,61 @@ export interface Budget {
   amount: number;
 }
 
-function mapTx(r: any): Transaction {
-  return {
-    id: r.id,
-    type: r.type,
-    amount: Number(r.amount),
-    category: r.category,
-    description: r.description ?? "",
-    date: r.date,
-  };
+const KEYS = {
+  transactions: "pennywise.transactions",
+  goals: "pennywise.savings_goals",
+  budgets: "pennywise.budgets",
+};
+
+function load<T>(key: string): T[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function save<T>(key: string, value: T[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function uid() {
+  return (
+    Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+  );
 }
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("transactions")
-      .select("*")
-      .order("date", { ascending: false });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setTransactions((data ?? []).map(mapTx));
+  useEffect(() => {
+    setTransactions(load<Transaction>(KEYS.transactions));
+    setLoading(false);
   }, []);
 
-  useEffect(() => {
-    refresh().finally(() => setLoading(false));
-  }, [refresh]);
+  const persist = (next: Transaction[]) => {
+    setTransactions(next);
+    save(KEYS.transactions, next);
+  };
 
-  const add = useCallback(async (t: Omit<Transaction, "id">) => {
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) return;
-    const { error } = await supabase.from("transactions").insert({
-      user_id: userData.user.id,
-      type: t.type,
-      amount: t.amount,
-      category: t.category,
-      description: t.description,
-      date: t.date,
-    });
-    if (error) return toast.error(error.message);
-    refresh();
-  }, [refresh]);
+  const add = useCallback((t: Omit<Transaction, "id">) => {
+    persist([{ ...t, id: uid() }, ...load<Transaction>(KEYS.transactions)]);
+  }, []);
 
-  const update = useCallback(async (id: string, t: Omit<Transaction, "id">) => {
-    const { error } = await supabase
-      .from("transactions")
-      .update({
-        type: t.type,
-        amount: t.amount,
-        category: t.category,
-        description: t.description,
-        date: t.date,
-      })
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    refresh();
-  }, [refresh]);
+  const update = useCallback((id: string, t: Omit<Transaction, "id">) => {
+    const next = load<Transaction>(KEYS.transactions).map((x) =>
+      x.id === id ? { ...t, id } : x,
+    );
+    persist(next);
+  }, []);
 
-  const remove = useCallback(async (id: string) => {
-    const { error } = await supabase.from("transactions").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    refresh();
-  }, [refresh]);
+  const remove = useCallback((id: string) => {
+    persist(load<Transaction>(KEYS.transactions).filter((x) => x.id !== id));
+  }, []);
 
   return { transactions, loading, add, update, remove };
 }
@@ -117,61 +104,32 @@ export function useTransactions() {
 export function useSavingsGoals() {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
 
-  const refresh = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("savings_goals")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) return toast.error(error.message);
-    setGoals(
-      (data ?? []).map((g: any) => ({
-        id: g.id,
-        name: g.name,
-        target_amount: Number(g.target_amount),
-        saved_amount: Number(g.saved_amount),
-        target_date: g.target_date,
-      })),
-    );
+  useEffect(() => {
+    setGoals(load<SavingsGoal>(KEYS.goals));
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const persist = (next: SavingsGoal[]) => {
+    setGoals(next);
+    save(KEYS.goals, next);
+  };
 
-  const add = useCallback(
-    async (g: Omit<SavingsGoal, "id">) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
-      const { error } = await supabase.from("savings_goals").insert({
-        user_id: userData.user.id,
-        name: g.name,
-        target_amount: g.target_amount,
-        saved_amount: g.saved_amount,
-        target_date: g.target_date,
-      });
-      if (error) return toast.error(error.message);
-      refresh();
-    },
-    [refresh],
-  );
+  const add = useCallback((g: Omit<SavingsGoal, "id">) => {
+    persist([{ ...g, id: uid() }, ...load<SavingsGoal>(KEYS.goals)]);
+  }, []);
 
   const update = useCallback(
-    async (id: string, patch: Partial<Omit<SavingsGoal, "id">>) => {
-      const { error } = await supabase.from("savings_goals").update(patch).eq("id", id);
-      if (error) return toast.error(error.message);
-      refresh();
+    (id: string, patch: Partial<Omit<SavingsGoal, "id">>) => {
+      const next = load<SavingsGoal>(KEYS.goals).map((g) =>
+        g.id === id ? { ...g, ...patch } : g,
+      );
+      persist(next);
     },
-    [refresh],
+    [],
   );
 
-  const remove = useCallback(
-    async (id: string) => {
-      const { error } = await supabase.from("savings_goals").delete().eq("id", id);
-      if (error) return toast.error(error.message);
-      refresh();
-    },
-    [refresh],
-  );
+  const remove = useCallback((id: string) => {
+    persist(load<SavingsGoal>(KEYS.goals).filter((g) => g.id !== id));
+  }, []);
 
   return { goals, add, update, remove };
 }
@@ -179,45 +137,28 @@ export function useSavingsGoals() {
 export function useBudgets() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
 
-  const refresh = useCallback(async () => {
-    const { data, error } = await supabase.from("budgets").select("*");
-    if (error) return toast.error(error.message);
-    setBudgets(
-      (data ?? []).map((b: any) => ({
-        id: b.id,
-        category: b.category,
-        amount: Number(b.amount),
-      })),
-    );
+  useEffect(() => {
+    setBudgets(load<Budget>(KEYS.budgets));
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const upsert = useCallback(
-    async (category: string, amount: number) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
-      if (amount <= 0) {
-        await supabase
-          .from("budgets")
-          .delete()
-          .eq("user_id", userData.user.id)
-          .eq("category", category);
+  const upsert = useCallback((category: string, amount: number) => {
+    const current = load<Budget>(KEYS.budgets);
+    let next: Budget[];
+    if (amount <= 0) {
+      next = current.filter((b) => b.category !== category);
+    } else {
+      const existing = current.find((b) => b.category === category);
+      if (existing) {
+        next = current.map((b) =>
+          b.category === category ? { ...b, amount } : b,
+        );
       } else {
-        const { error } = await supabase
-          .from("budgets")
-          .upsert(
-            { user_id: userData.user.id, category, amount },
-            { onConflict: "user_id,category" },
-          );
-        if (error) return toast.error(error.message);
+        next = [...current, { id: uid(), category, amount }];
       }
-      refresh();
-    },
-    [refresh],
-  );
+    }
+    setBudgets(next);
+    save(KEYS.budgets, next);
+  }, []);
 
   return { budgets, upsert };
 }
