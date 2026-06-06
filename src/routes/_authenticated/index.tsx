@@ -39,7 +39,7 @@ import {
   useTransactions,
   type Transaction,
 } from "@/lib/expense-store";
-import { supabase } from "@/integrations/supabase/client";
+
 import { StatCard } from "@/components/expense/StatCard";
 import { TransactionForm } from "@/components/expense/TransactionForm";
 import { TransactionTable } from "@/components/expense/TransactionTable";
