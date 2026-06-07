@@ -262,8 +262,9 @@ function ExpenseApp() {
         </section>
 
         <footer className="pt-2 pb-4 text-center text-xs text-muted-foreground">
-          Synced securely to your account
+          MoneyMentor · Saved locally in your browser · <Link to="/about" className="underline hover:text-foreground">About</Link>
         </footer>
+
       </main>
 
       <TransactionForm
