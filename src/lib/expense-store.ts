@@ -46,6 +46,8 @@ const KEYS = {
   transactions: "pennywise.transactions",
   goals: "pennywise.savings_goals",
   budgets: "pennywise.budgets",
+  primaryGoal: "moneymentor.primary_goal",
+  monthlyBudget: "moneymentor.monthly_budget",
 };
 
 function load<T>(key: string): T[] {
@@ -161,6 +163,33 @@ export function useBudgets() {
   }, []);
 
   return { budgets, upsert };
+}
+
+function loadNumber(key: string): number {
+  if (typeof window === "undefined") return 0;
+  const raw = localStorage.getItem(key);
+  const n = raw ? parseFloat(raw) : 0;
+  return isNaN(n) ? 0 : n;
+}
+
+export function usePrimaryGoal() {
+  const [target, setTargetState] = useState(0);
+  useEffect(() => setTargetState(loadNumber(KEYS.primaryGoal)), []);
+  const setTarget = useCallback((n: number) => {
+    setTargetState(n);
+    if (typeof window !== "undefined") localStorage.setItem(KEYS.primaryGoal, String(n));
+  }, []);
+  return { target, setTarget };
+}
+
+export function useMonthlyBudget() {
+  const [budget, setBudgetState] = useState(0);
+  useEffect(() => setBudgetState(loadNumber(KEYS.monthlyBudget)), []);
+  const setBudget = useCallback((n: number) => {
+    setBudgetState(n);
+    if (typeof window !== "undefined") localStorage.setItem(KEYS.monthlyBudget, String(n));
+  }, []);
+  return { budget, setBudget };
 }
 
 export function toCSV(rows: Transaction[]): string {

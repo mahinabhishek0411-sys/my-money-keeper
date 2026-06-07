@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   Download,
@@ -8,6 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
   PiggyBank,
+  Info,
 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
@@ -47,16 +48,19 @@ import { MonthlyChart } from "@/components/expense/MonthlyChart";
 import { CategoryPieChart } from "@/components/expense/CategoryPieChart";
 import { SavingsGoals } from "@/components/expense/SavingsGoals";
 import { BudgetPlanner } from "@/components/expense/BudgetPlanner";
+import { SavingsGoalCard } from "@/components/expense/SavingsGoalCard";
+import { BudgetStatusCard } from "@/components/expense/BudgetStatusCard";
+import { MoneyMentorTips } from "@/components/expense/MoneyMentorTips";
 import { ThemeToggle } from "@/components/expense/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Pennywise — Personal Expense Tracker" },
+      { title: "MoneyMentor — Smart Expense and Savings Tracker" },
       {
         name: "description",
         content:
-          "Track income, expenses, savings goals, and monthly budgets in one beautiful dashboard.",
+          "MoneyMentor helps you track expenses, monitor savings goals, plan budgets, and build better financial habits.",
       },
     ],
   }),
@@ -67,6 +71,7 @@ export const Route = createFileRoute("/_authenticated/")({
     </ThemeProvider>
   ),
 });
+
 
 function ExpenseApp() {
   const { transactions, add, update, remove } = useTransactions();
@@ -133,13 +138,18 @@ function ExpenseApp() {
               <PiggyBank className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">Pennywise</h1>
+              <h1 className="text-lg font-semibold tracking-tight">MoneyMentor</h1>
               <p className="hidden text-xs text-muted-foreground sm:block">
-                Your personal expense tracker
+                Smart Expense and Savings Tracker
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/about" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm">
+                <Info className="mr-1.5 h-4 w-4" /> About
+              </Button>
+            </Link>
             <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:inline-flex">
               <Download className="mr-1.5 h-4 w-4" /> Export
             </Button>
@@ -168,12 +178,18 @@ function ExpenseApp() {
             hint="All time"
           />
           <StatCard
-            label="Balance"
+            label="Remaining balance"
             value={formatCurrency(balance)}
             icon={Wallet}
             variant="primary"
             hint={balance >= 0 ? "You're in the green" : "Spending exceeds income"}
           />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-3">
+          <SavingsGoalCard balance={balance} />
+          <BudgetStatusCard transactions={transactions} />
+          <MoneyMentorTips />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
@@ -185,6 +201,7 @@ function ExpenseApp() {
           <BudgetPlanner transactions={transactions} />
           <SavingsGoals />
         </section>
+
 
         <section className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -245,8 +262,9 @@ function ExpenseApp() {
         </section>
 
         <footer className="pt-2 pb-4 text-center text-xs text-muted-foreground">
-          Synced securely to your account
+          MoneyMentor · Saved locally in your browser · <Link to="/about" className="underline hover:text-foreground">About</Link>
         </footer>
+
       </main>
 
       <TransactionForm
