@@ -138,13 +138,18 @@ function ExpenseApp() {
               <PiggyBank className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">Pennywise</h1>
+              <h1 className="text-lg font-semibold tracking-tight">MoneyMentor</h1>
               <p className="hidden text-xs text-muted-foreground sm:block">
-                Your personal expense tracker
+                Smart Expense and Savings Tracker
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/about" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm">
+                <Info className="mr-1.5 h-4 w-4" /> About
+              </Button>
+            </Link>
             <Button variant="outline" size="sm" onClick={handleExport} className="hidden sm:inline-flex">
               <Download className="mr-1.5 h-4 w-4" /> Export
             </Button>
@@ -173,12 +178,18 @@ function ExpenseApp() {
             hint="All time"
           />
           <StatCard
-            label="Balance"
+            label="Remaining balance"
             value={formatCurrency(balance)}
             icon={Wallet}
             variant="primary"
             hint={balance >= 0 ? "You're in the green" : "Spending exceeds income"}
           />
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-3">
+          <SavingsGoalCard balance={balance} />
+          <BudgetStatusCard transactions={transactions} />
+          <MoneyMentorTips />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
@@ -190,6 +201,7 @@ function ExpenseApp() {
           <BudgetPlanner transactions={transactions} />
           <SavingsGoals />
         </section>
+
 
         <section className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
