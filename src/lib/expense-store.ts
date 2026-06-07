@@ -46,6 +46,8 @@ const KEYS = {
   transactions: "pennywise.transactions",
   goals: "pennywise.savings_goals",
   budgets: "pennywise.budgets",
+  primaryGoal: "moneymentor.primary_goal",
+  monthlyBudget: "moneymentor.monthly_budget",
 };
 
 function load<T>(key: string): T[] {
