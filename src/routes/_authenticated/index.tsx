@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   Download,
@@ -8,6 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
   PiggyBank,
+  Info,
 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
@@ -47,16 +48,19 @@ import { MonthlyChart } from "@/components/expense/MonthlyChart";
 import { CategoryPieChart } from "@/components/expense/CategoryPieChart";
 import { SavingsGoals } from "@/components/expense/SavingsGoals";
 import { BudgetPlanner } from "@/components/expense/BudgetPlanner";
+import { SavingsGoalCard } from "@/components/expense/SavingsGoalCard";
+import { BudgetStatusCard } from "@/components/expense/BudgetStatusCard";
+import { MoneyMentorTips } from "@/components/expense/MoneyMentorTips";
 import { ThemeToggle } from "@/components/expense/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Pennywise — Personal Expense Tracker" },
+      { title: "MoneyMentor — Smart Expense and Savings Tracker" },
       {
         name: "description",
         content:
-          "Track income, expenses, savings goals, and monthly budgets in one beautiful dashboard.",
+          "MoneyMentor helps you track expenses, monitor savings goals, plan budgets, and build better financial habits.",
       },
     ],
   }),
@@ -67,6 +71,7 @@ export const Route = createFileRoute("/_authenticated/")({
     </ThemeProvider>
   ),
 });
+
 
 function ExpenseApp() {
   const { transactions, add, update, remove } = useTransactions();
